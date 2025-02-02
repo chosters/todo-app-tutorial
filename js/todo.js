@@ -19,3 +19,8 @@ export function deleteTodoById(todoId) {
     saveTodosToStorage(updatedTodos);
     return updatedTodos;
 }
+
+export function deleteAllTodos() {
+  saveTodosToStorage([]);
+  return [];
+}
