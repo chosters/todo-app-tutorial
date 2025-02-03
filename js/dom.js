@@ -2,22 +2,34 @@
 import { addTodo, deleteTodoById, deleteAllTodos } from './todo.js';
 import { sanitizeInputText } from './utils.js';
 
-const todoList = document.getElementById('todo-list');
-const todoInput = document.getElementById('todo-input');
-const addButton = document.getElementById('add-button');
-const buttonContainer = document.getElementById('button-container');
+// Move element queries into functions to ensure DOM is ready
+function getElements() {
+  return {
+    todoList: document.getElementById('todo-list'),
+    todoInput: document.getElementById('todo-input'),
+    addButton: document.getElementById('add-button'),
+    buttonContainer: document.getElementById('button-container')
+  };
+}
 
 // Input field operations
 export function getUserInputText() {
-    return todoInput.value;
+    const { todoInput } = getElements();
+    return todoInput ? todoInput.value : '';
 }
 
 export function clearInputField() {
-    todoInput.value = '';
+    const { todoInput } = getElements();
+    if (todoInput) {
+        todoInput.value = '';
+    }
 }
 
 // Renders the list of todos to the DOM
 export function renderTodoList(todos) {
+    const { todoList } = getElements();
+    if (!todoList) return;
+    
     todoList.innerHTML = '';
     
     todos.forEach(todo => {
@@ -45,33 +57,33 @@ export function renderTodoList(todos) {
 
 // Renders Delete All Button
 export function renderDeleteAllButton() {
-  if (!buttonContainer) return;
-  if (todoList.children.length === 0) {
-    removeDeleteAllButton();
-    return;
-  }
+    const { buttonContainer, todoList } = getElements();
+    if (!buttonContainer || !todoList) return;
+    
+    if (todoList.children.length === 0) {
+        removeDeleteAllButton();
+        return;
+    }
 
-  if(!document.getElementById('delete-all-btn')) {
-    const deleteAllBtn = document.createElement('button');
-    deleteAllBtn.textContent = 'Delete All';
-    deleteAllBtn.id = 'delete-all-btn';
-    deleteAllBtn.addEventListener('click', () => handleDeleteAllTodos());
-    buttonContainer.appendChild(deleteAllBtn);
-  }
-
+    if(!document.getElementById('delete-all-btn')) {
+        const deleteAllBtn = document.createElement('button');
+        deleteAllBtn.textContent = 'Delete All';
+        deleteAllBtn.id = 'delete-all-btn';
+        deleteAllBtn.addEventListener('click', () => handleDeleteAllTodos());
+        buttonContainer.appendChild(deleteAllBtn);
+    }
 }
 
 // Helper function to remove the delete all button
 function removeDeleteAllButton() {
-  const deleteAllBtn = document.getElementById('delete-all-btn');
-  if (deleteAllBtn) {
-    deleteAllBtn.remove();
-  }
+    const deleteAllBtn = document.getElementById('delete-all-btn');
+    if (deleteAllBtn) {
+        deleteAllBtn.remove();
+    }
 }
 
 // Event handler functions
 function handleAddNewTodo() {
-
     const todoText = sanitizeInputText(getUserInputText());
     if (todoText === '') {
         return;
@@ -86,14 +98,24 @@ function handleTodoDelete(todoId) {
 }
 
 function handleDeleteAllTodos() {
-  renderTodoList(deleteAllTodos());
-  removeDeleteAllButton();
+    renderTodoList(deleteAllTodos());
+    removeDeleteAllButton();
 }
 
 // Set up event listeners
-addButton.addEventListener('click', handleAddNewTodo);
-todoInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        handleAddNewTodo();
+export function initializeEventListeners() {
+    const { addButton, todoInput } = getElements();
+    if (addButton && todoInput) {
+        addButton.addEventListener('click', handleAddNewTodo);
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleAddNewTodo();
+            }
+        });
     }
-});
+}
+
+// Call it only if we're in a browser environment
+if (typeof window !== 'undefined') {
+    initializeEventListeners();
+}
