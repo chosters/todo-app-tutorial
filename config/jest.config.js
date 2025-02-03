@@ -1,4 +1,5 @@
 export default {
+  rootDir: '../',
   testEnvironment: 'jsdom',
   transform: {
     '^.+\\.js$': 'babel-jest',
